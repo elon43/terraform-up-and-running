@@ -21,7 +21,7 @@ terraform {
 
 
 module "webserver_cluster" {
-  source                 = "../../../modules/services/webserver-cluster"
+  source                 = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.1"
   cluster_name           = "webservers-stage"
   db_remote_state_bucket = "terraform-up-and-running-state-sct6443"
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
