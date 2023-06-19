@@ -5,18 +5,47 @@ provider "aws" {
   region = "us-east-2"
 }
 
+# Create Terraform Backend using S3
+# https://developer.hashicorp.com/terraform/language/settings/backends/s3
+terraform {
+  backend "s3" {
+    bucket = "terraform-up-and-running-state-sct6443"
+    key    = "stage/services/webserver-cluster/terraform.tfstate"
+    region = "us-east-2"
+
+
+    dynamodb_table = "terraform-up-and-running-locks"
+    encrypt = true
+  }
+}
+
+# Retrieve Information from the Remote State Data Source
+# https://developer.hashicorp.com/terraform/language/state/remote-state-data
+data "terraform_remote_state" "db" {
+  backend = "s3"
+
+  config = {
+    bucket = "terraform-up-and-running-state-sct6443"
+     key    = "stage/data-stores/mysql/terraform.tfstate"
+    region = "us-east-2"
+  }
+}
+
+
 # Create Launch Configuration
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration
 resource "aws_launch_configuration" "example" {
   image_id        = "ami-0430580de6244e02e"
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.instance.id]
-
-  user_data = <<-EOF
-            #!/bin/bash
-            echo "Hello, World" > index.html
-            nohup busybox httpd -f -p ${var.server_port} &
-            EOF
+  
+  # Create Templatefile
+  # https://developer.hashicorp.com/terraform/language/functions/templatefile
+  user_data = templatefile("user-data.sh", {
+    server_port = var.server_port
+    db_address = data.terraform_remote_state.db.outputs.address
+    db_port = data.terraform_remote_state.db.outputs.port
+  })
 
   lifecycle {
     create_before_destroy = true
@@ -132,8 +161,6 @@ resource "aws_lb_listener_rule" "asg" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.asg.arn
   }
-
-
 }
 
 # Create Security Group for Load Balancer
@@ -155,16 +182,3 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-variable "server_port" {
-  description = "The port the server will use for HTTP requests"
-  type        = number
-  default     = 8080
-}
-
-
-output "alb_dns_name" {
-  value       = aws_lb.example.dns_name
-  description = "The domain name of the load balancer"
-}
-
