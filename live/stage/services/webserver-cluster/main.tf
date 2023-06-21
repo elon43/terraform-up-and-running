@@ -21,14 +21,20 @@ terraform {
 
 
 module "webserver_cluster" {
-  source                 = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.1"
+  # source = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.6"
+  source = "../../../../modules/services/webserver-cluster"
+
+  ami         = "ami-0430580de6244e02e"
+  server_text = "Change Big Change"
+
   cluster_name           = "webservers-stage"
   db_remote_state_bucket = "terraform-up-and-running-state-sct6443"
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 
-  instance_type = "t2.micro"
-  min_size      = 2
-  max_size      = 2
+  instance_type      = "t2.micro"
+  min_size           = 2
+  max_size           = 2
+  enable_autoscaling = false
 }
 
 output "alb_dns_name" {
