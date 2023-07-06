@@ -10,7 +10,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "terraform-up-and-running-state-sct6443"
-    key    = "prod/services/webserver-cluster/terraform.tfstate"
+    key    = "stage/services/webserver-cluster/terraform.tfstate"
     region = "us-east-2"
 
 
@@ -21,25 +21,15 @@ terraform {
 
 
 module "webserver_cluster" {
-  source = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.6"    
+  source = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.1"  
   #source                 = "../../../modules/services/webserver-cluster"
-
-  ami         = "ami-0430580de6244e02e"
-  server_text = "Stefan new text"
-
-  cluster_name           = "webservers-prod"
+  cluster_name           = "webservers-stage"
   db_remote_state_bucket = "terraform-up-and-running-state-sct6443"
-  db_remote_state_key    = "prod/data-stores/mysql/terraform.tfstate"
+  db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 
-  instance_type = "m4.large"
+  instance_type = "t2.micro"
   min_size      = 2
-  max_size      = 10
-  enable_autoscaling = true
-
-  custom_tags = {
-    Owner = "team-foo"
-    ManagedBy = "terraform"
-  }
+  max_size      = 2
 }
 
 output "alb_dns_name" {

@@ -1,3 +1,14 @@
+# Configure Required Providers Block
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.4.0"
+    }
+  }
+}
+
 # Configure the AWS Provider
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
@@ -21,19 +32,16 @@ terraform {
 
 
 module "webserver_cluster" {
-  source = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.6"    
-  #source                 = "../../../modules/services/webserver-cluster"
-
-  ami         = "ami-0430580de6244e02e"
-  server_text = "Stefan new text"
-
+  source = "github.com/elon43/terraform-up-and-running-modules//services/webserver-cluster?ref=v0.0.3"
+  # source = "../../../../modules/services/webserver-cluster"
+  
   cluster_name           = "webservers-prod"
   db_remote_state_bucket = "terraform-up-and-running-state-sct6443"
   db_remote_state_key    = "prod/data-stores/mysql/terraform.tfstate"
 
-  instance_type = "m4.large"
-  min_size      = 2
-  max_size      = 10
+  instance_type      = "m4.large"
+  min_size           = 2
+  max_size           = 10
   enable_autoscaling = true
 
   custom_tags = {
@@ -41,6 +49,7 @@ module "webserver_cluster" {
     ManagedBy = "terraform"
   }
 }
+
 
 output "alb_dns_name" {
   value       = module.webserver_cluster.alb_dns_name
