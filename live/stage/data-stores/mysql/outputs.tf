@@ -1,9 +1,9 @@
 output "address" {
-  value       = aws_db_instance.example.address
-  description = "Connect to the database at this endpoint"
+  value       = module.mysql_primary.address
+  description = "Connect to the primary database at this endpoint"
 }
 
 output "port" {
-  value       = aws_db_instance.example.port
-  description = "the port the database is listening on"
+  value       = module.mysql_primary.port
+  description = "the port the primary database is listening on"
 }

@@ -1,8 +1,25 @@
+# Configure the Required Providers Block
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.4.0"
+    }
+  }
+}
+
+
 # Configure the AWS Provider
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs
-
 provider "aws" {
   region = "us-east-2"
+  alias = "primary"
+}
+
+provider "aws" {
+  region = "us-west-2"
+  alias = "replica"
 }
 
 # Create Terraform Backend using S3
@@ -10,7 +27,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "terraform-up-and-running-state-sct6443"
-    key    = "prod/data-stores/mysql/terraform.tfstate"
+    key    = "stage/data-stores/mysql/terraform.tfstate"
     region = "us-east-2"
 
 
@@ -18,16 +35,38 @@ terraform {
     encrypt        = true
   }
 }
-# Create MYSQL Database
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
-resource "aws_db_instance" "example" {
-  identifier_prefix   = "terraform-up-and-running"
-  engine              = "mysql"
-  allocated_storage   = 10
-  instance_class      = "db.t2.micro"
-  skip_final_snapshot = true
-  db_name             = "prod_database"
 
-  username = var.db_username
-  password = var.db_password
+# Configure the AWS Provider
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+module "mysql_primary" {
+  source = "../../../../modules/data-stores/mysql"
+  
+  providers = {
+    aws = aws.primary
+  }
+
+  # Configure AWS Providers
+  # https://developer.hashicorp.com/terraform/language/modules/develop/providers
+  db_name  = "prod_db"
+  db_username = var.db_username
+  db_password = var.db_password
+
+  # Must be enable to support replication
+  backup_retention_period = 1
+}
+
+module "mysql_replica" {
+  source = "../../../../modules/data-stores/mysql"
+
+  # Configure AWS Providers
+  # https://developer.hashicorp.com/terraform/language/modules/develop/providers
+
+  providers = {
+    aws = aws.replica
+  }
+  
+
+  # Must be enable to support replication
+  replicate_source_db = module.mysql_primary.arn
 }
