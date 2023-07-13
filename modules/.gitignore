@@ -1,3 +1,5 @@
 .terraform
 *.tfstate
 *.tfstate.backup
+examples/kubernetes-eks/aws/dist/*
+examples/kubernetes-eks/awscliv2.zip
