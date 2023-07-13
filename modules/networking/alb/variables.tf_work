@@ -1,0 +1,20 @@
+variable "alb_name" {
+  description = "The name to use for this ALB"
+  type = string
+}
+
+variable "subnet_ids" {
+  description = "The subnet IDs to deploy to"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "The VPC ID to deploy to"
+  type        = string
+}
+
+variable "server_port" {
+  description = "The port the server will use for HTTP requests"
+  type        = number
+  default     = 8080
+}

@@ -9,6 +9,7 @@ terraform {
   }
 }
 
+/*
 # Configure the AWS Provider
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 provider "aws" {
@@ -20,6 +21,7 @@ provider "aws" {
   region = "us-west-2"
   alias = "replica"
 }
+*/
 
 # Create MYSQL Database
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance

@@ -22,11 +22,11 @@ data "aws_eks_cluster_auth" "cluster" {
 module "eks_cluster" {
   source = "../../modules/services/eks-cluster"
 
-  name               = "example-eks-cluster"
+  name               = "example-eks-cluster2"
   min_size           = 1
   max_size           = 2
   desired_size       = 1
-  kubernetes_version = "1.23"
+  kubernetes_version = "1.27"
   instance_types     = ["t3.small"]
 }
 
